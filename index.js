@@ -28,7 +28,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        client.connect();
 
         const database = client.db('formBuilder');
         const formsCollection = database.collection('forms');
@@ -42,6 +42,24 @@ async function run() {
 
         app.get('/forms', async(req, res) =>{
             const result = await formsCollection.find().toArray();
+            res.send(result)
+        })
+
+        app.post('/submitInfo', async(req, res ) =>{
+            // console.log(req.body.data);
+            const formName= req.body.formName.split(' ').join('')
+            const data = req.body.data;
+
+            const infoCollection = database.collection(formName);
+
+            const result = await infoCollection.insertOne(data);
+            res.send(result)
+
+        })
+
+        app.get('/formSubmissions/:formName', async(req, res) =>{
+            const infoCollection = database.collection(req.params.formName);
+            const result = await infoCollection.find().toArray();
             res.send(result)
         })
 
